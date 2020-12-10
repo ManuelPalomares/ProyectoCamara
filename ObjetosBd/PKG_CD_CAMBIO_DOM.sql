@@ -988,6 +988,9 @@ begin
 											fnGetValorCampoTabla(vproceso,idtabla,'fechainiciociiu1',nuReg) ,
 											fnGetValorCampoTabla(vproceso,idtabla,'ciiumayoresingresos',nuReg)   
 										   );
+										   
+										   
+					
 					prc_guardarCiiuInscrito(vproceso,
 											2 ,
 											fnGetValorCampoTabla(vproceso,idtabla,'ciiu2',nuReg),
@@ -3196,23 +3199,25 @@ procedure prc_guardarCiiuInscrito(
 BEGIN 
 	 select MATRICULA into V_MATRICULA  FROM CD_JSON_CARGUE WHERE ID = v_proceso;
 
-    insert into CIIUS_INSCRITOS(
-      MATRICULA,
-      CAMARA,
-      SECUENCIA,
-      CIIU,
-      FECHA_INICIO_ACTIVIDAD,
-      SW_MAYOR_INGRESO
-    ) 
-    values
-    (
-         V_MATRICULA,
-         5,
-         P_SECUENCIA ,
-         P_CIIU,
-         TO_DATE(P_FECHA_INICIO,'YYYYMMDD'),
-         DECODE(P_CIIU_MAYOR_INGRESO,P_CIIU,0)  ---Si el ciiu que viene como ciiu de ingreso mayor, se marca como 1
-    ); 
+	if(P_CIIU is not null) then 
+		insert into CIIUS_INSCRITOS(
+		  MATRICULA,
+		  CAMARA,
+		  SECUENCIA,
+		  CIIU,
+		  FECHA_INICIO_ACTIVIDAD,
+		  SW_MAYOR_INGRESO
+		) 
+		values
+		(
+			 V_MATRICULA,
+			 5,
+			 P_SECUENCIA ,
+			 P_CIIU,
+			 TO_DATE(P_FECHA_INICIO,'YYYYMMDD'),
+			 DECODE(P_CIIU_MAYOR_INGRESO,P_CIIU,0)  ---Si el ciiu que viene como ciiu de ingreso mayor, se marca como 1
+		); 
+	end if;
  END prc_guardarCiiuInscrito; 
 
  
