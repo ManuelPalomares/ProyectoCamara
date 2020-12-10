@@ -19,7 +19,7 @@ resTexto clob;
 BEGIN
   DBMS_LOB.CREATETEMPORARY(resTexto,true);
   
-  if(VREGISTRO is not null and VMATRICULA is not null  ) then
+  if(VMATRICULA is not null  ) then
   
 	  for rgDatos in cuDatos loop
 	  

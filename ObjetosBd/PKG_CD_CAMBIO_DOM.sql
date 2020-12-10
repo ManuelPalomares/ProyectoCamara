@@ -10,6 +10,7 @@ CREATE OR REPLACE PACKAGE PKG_CD_CAMBIO_DOM AS
  function  fnGetValorCampoTabla(proceso number,idTabla number,campoTabla varchar2,numReg number) return varchar2;
  function  fnGetValorCampoTablaClob(proceso number,idTabla number,campoTabla varchar2,numReg number) return clob;
  procedure llenarDatosProcedimiento(vproceso number,vnombreproceso varchar2,idtabla number,registrostabla number); 
+ function  decodificaClob(p_clob CLOB) RETURN CLOB;
  
  
  procedure prc_crearProponente(vproceso number, P_NIT varchar2,P_NACIONALIDAD varchar2,P_NUMERO_ID_TRIBUTARIA_PAIS varchar2,P_ORGANIZACION varchar2,P_TAM_EMPRESA varchar2,P_FECHA_INSCRIPCION varchar2,P_FECHA_RENOVACION varchar2);
@@ -383,11 +384,42 @@ procedure prc_guardarDirecciones(v_proceso NUMBER,
      P_telnot3 varchar2,
      P_emailnot varchar2 );
 	 
+	 
+	 
+procedure guardarFacultadesMatricula(vproceso number,textoClob clob);
+	 
 END PKG_CD_CAMBIO_DOM;
 /
 
 
 CREATE OR REPLACE PACKAGE BODY PKG_CD_CAMBIO_DOM AS
+
+
+
+FUNCTION decodificaClob(p_clob CLOB) RETURN CLOB
+
+IS
+  l_blob    CLOB;
+  l_raw     RAW(32767);
+  l_amt     NUMBER := 7700;
+  l_offset  NUMBER := 1;
+  l_temp    VARCHAR2(32767);
+BEGIN
+  BEGIN
+    DBMS_LOB.createtemporary (l_blob, TRUE);
+    LOOP
+      DBMS_LOB.read(p_clob, l_amt, l_offset, l_temp);
+      l_offset := l_offset + l_amt;
+	  DBMS_OUTPUT.PUT_LINE('EL TEXTO : '||l_temp);
+      l_raw    := UTL_ENCODE.base64_decode(UTL_RAW.cast_to_raw(l_temp));
+      DBMS_LOB.append (l_blob,utl_raw.cast_to_varchar2(l_raw));
+    END LOOP;
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      NULL;
+  END;
+  RETURN l_blob;
+END decodificaClob;
 
 
 function fnGetValorCampoTabla(proceso number,idTabla number,campoTabla varchar2,numReg number) return varchar2 as   
@@ -1039,7 +1071,11 @@ begin
 											fnGetValorCampoTabla(vproceso,idtabla,'telnot3',nuReg),
 											fnGetValorCampoTabla(vproceso,idtabla,'emailnot',nuReg)
 											);
-
+					
+					
+					if(fnGetValorCampoTablaClob(vproceso,idtabla,'facultades',nuReg) != null) then
+						guardarFacultadesMatricula(vproceso,fnGetValorCampoTablaClob(vproceso,idtabla,'facultades',nuReg));
+					end if;
 				nuReg := nuReg +1 ;
 			end loop;
 		
@@ -1594,22 +1630,23 @@ P_TotalProcesado number;
 P_Cadenafija varchar2(500);
 nunro_registro number;
 n_totalcadena_aux number;
-
+textoClobtmp clob;
 begin
 	
 	-- consultamos dato opcional del registro que esta en la camara.
 	SELECT nro_proponente into nunro_registro FROM CD_JSON_CARGUE WHERE ID = vproceso;
 
 
+	--SE DECODIFICA EL TEXTO BASE 64
+	textoClobtmp := decodificaClob(textoClob);
 	
-	
-	select DBMS_LOB.getlength(textoClob) into n_totalcadena_aux  from dual;
+	select DBMS_LOB.getlength(textoClobtmp) into n_totalcadena_aux  from dual;
 
     P_Secuencia := 1;
     P_TotalProcesado :=1;
 
         while P_TotalProcesado  <=  n_totalcadena_aux loop
-              select Dbms_Lob.Substr(textoClob , 80, P_Totalprocesado )    into P_Cadenafija        from dual;
+              select Dbms_Lob.Substr(textoClobtmp , 80, P_Totalprocesado )    into P_Cadenafija        from dual;
               insert into rpt_facultad (registro,secuencia,descripcion) values (nunro_registro,P_Secuencia,UPPER(P_Cadenafija));
               P_Totalprocesado := P_Totalprocesado + 80;
               P_Secuencia := P_Secuencia  + 1;
@@ -2917,6 +2954,8 @@ procedure prc_guardar_certificas(
      P_codigo varchar2,
      P_texto clob) as 
      
+	 
+	 
       V_MATRICULA number(15);
 	  
 	  P_Secuencia 		number;
@@ -2924,20 +2963,23 @@ procedure prc_guardar_certificas(
 	  n_totalcadena_aux number;
 	  P_Cadenafija varchar2(500);
 	  
+	  clobTexto clob;
+	  
   BEGIN 
-  
+    clobTexto := decodificaClob(P_texto);
+
   	-- traer numero matricula.
 	select MATRICULA into V_MATRICULA  FROM CD_JSON_CARGUE WHERE ID = v_proceso;
 
 	
 	
-	select DBMS_LOB.getlength(P_texto) into n_totalcadena_aux  from dual;
+	select DBMS_LOB.getlength(clobTexto) into n_totalcadena_aux  from dual;
 
     P_Secuencia := 1;
     P_TotalProcesado :=1;
 
 	while P_TotalProcesado  <=  n_totalcadena_aux loop
-			  select Dbms_Lob.Substr(P_texto , 75, P_Totalprocesado )    into P_Cadenafija        from dual;
+			  select Dbms_Lob.Substr(clobTexto , 75, P_Totalprocesado )    into P_Cadenafija        from dual;
 		  
 		      INSERT INTO TEXTOS_PARA_CERTIFICAR(
 			  MATRICULA,
@@ -3246,99 +3288,157 @@ BEGIN
      P_emailnot varchar2 ) as 
 	 
 	 V_MATRICULA NUMBER(15);
+	 
+	 nucodBarrionot number; 
+	 nucodBarriocom number; 
+	 
+	 
+	 cursor cuBarrioCodigo(nuCiudad number,sbBarrio varchar2) is
+	 SELECT  CODIGO_BARRIO
+	 FROM BARRIO 
+	 WHERE upper(NOMBRE_BARRIO)= upper(sbBarrio)
+	 AND CIUDAD =nuCiudad;
+
 BEGIN 
-	 select MATRICULA into V_MATRICULA  FROM CD_JSON_CARGUE WHERE ID = v_proceso;
 
+	select MATRICULA into V_MATRICULA  FROM CD_JSON_CARGUE WHERE ID = v_proceso;
 
-
-INSERT INTO DIRECCIONES_INSCRITOS
-(
-    MATRICULA,--  	No
-    CAMARA,--	No
-    TIPO_DIRECCION,--	No
-    DIRECCION,--	Yes
-    CIUDAD,--	Yes
-    ZONA_POSTAL,--	Yes
-    TELEFONOS,--	Yes
-    APARTADO,--	Yes
-    FAX,--	Yes
-    CODIGO_BARRIO,--	Yes
-    TELEFONO_2,--	Yes
-    MOVIL,--	Yes
-    CORREO_ELECTRONICO,--	Yes
-    SW_AUTORIZA_ENVIO_INF_MOVIL,--	No
-    SW_AUTORIZA_LLAMADAS,--	No
-    ID_ZONA,
-    ID_SEDE_ADMINISTRATIVA,--	Yes
-    UBICACION_EMPRESA
- ) 
- VALUES
-  (
-      V_MATRICULA,--  	No
-      5,--	No
-      1,--	judicial
-      P_dirnot,--	Yes
-      P_munnot,--	Yes
-      P_zonanot,--	Yes
-      P_telnot1,--	Yes
-      null,--	Yes
-      null,--	Yes
-      P_barrionot,--	Yes
-      P_telnot2,--	Yes
-      P_telnot3,--	Yes
-      P_emailnot,--	Yes
-      1,--	No
-      1,--	No
-      P_codposnot	,--
-	  null,
-      P_ubicacionnot--	Yes 
-    ); 
-	
-	
+	open  cuBarrioCodigo(P_munnot,P_barrionot);
+	fetch cuBarrioCodigo into  nucodBarrionot;
+	close cuBarrioCodigo;
 	
 	INSERT INTO DIRECCIONES_INSCRITOS
-(
-    MATRICULA,--  	No
-    CAMARA,--	No
-    TIPO_DIRECCION,--	No
-    DIRECCION,--	Yes
-    CIUDAD,--	Yes
-    ZONA_POSTAL,--	Yes
-    TELEFONOS,--	Yes
-    APARTADO,--	Yes
-    FAX,--	Yes
-    CODIGO_BARRIO,--	Yes
-    TELEFONO_2,--	Yes
-    MOVIL,--	Yes
-    CORREO_ELECTRONICO,--	Yes
-    SW_AUTORIZA_ENVIO_INF_MOVIL,--	No
-    SW_AUTORIZA_LLAMADAS,--	No
-    ID_ZONA	,--
-    ID_SEDE_ADMINISTRATIVA,--	Yes
-    UBICACION_EMPRESA--	Yes
- ) 
- VALUES
-  (
-      V_MATRICULA,--  	No
-      5,--	No
-      2,--	comerciales
-      P_dircom,--	Yes
-      P_muncom,--	Yes
-      P_zonacom,--	Yes
-      P_telcom1,--	Yes
-      null,--	Yes
-      null,--	Yes
-      P_barriocom,--	Yes
-      P_telcom2,--	Yes
-      P_telcom3,--	Yes
-      P_emailcom,--	Yes
-      1,--	No
-      1,--	No
-      P_codposcom,--
-	  null,
-      P_ubicacioncom--	Yes 
-    ); 
+	(
+		MATRICULA,--  	No
+		CAMARA,--	No
+		TIPO_DIRECCION,--	No
+		DIRECCION,--	Yes
+		CIUDAD,--	Yes
+		ZONA_POSTAL,--	Yes
+		TELEFONOS,--	Yes
+		APARTADO,--	Yes
+		FAX,--	Yes
+		CODIGO_BARRIO,--	Yes
+		TELEFONO_2,--	Yes
+		MOVIL,--	Yes
+		CORREO_ELECTRONICO,--	Yes
+		SW_AUTORIZA_ENVIO_INF_MOVIL,--	No
+		SW_AUTORIZA_LLAMADAS,--	No
+		ID_ZONA,
+		ID_SEDE_ADMINISTRATIVA,--	Yes
+		UBICACION_EMPRESA
+	 ) 
+	 VALUES
+	  (
+		  V_MATRICULA,--  	No
+		  5,--	No
+		  1,--	judicial
+		  P_dirnot,--	Yes
+		  P_munnot,--	Yes
+		  decode(P_zonanot,'R',2,'U',1),
+		  P_telnot1,--	Yes
+		  null,--	Yes
+		  null,--	Yes
+		  nucodBarrionot,--	Yes
+		  P_telnot2,--	Yes
+		  P_telnot3,--	Yes
+		  P_emailnot,--	Yes
+		  1,--	No
+		  1,--	No
+		  P_codposnot	,--
+		  null,
+		  P_ubicacionnot--	Yes 
+		); 
+	
+	
+	open  cuBarrioCodigo(P_munnot,P_barrionot);
+	fetch cuBarrioCodigo into  nucodBarriocom;
+	close cuBarrioCodigo;
+	INSERT INTO DIRECCIONES_INSCRITOS
+	(
+		MATRICULA,--  	No
+		CAMARA,--	No
+		TIPO_DIRECCION,--	No
+		DIRECCION,--	Yes
+		CIUDAD,--	Yes
+		ZONA_POSTAL,--	Yes
+		TELEFONOS,--	Yes
+		APARTADO,--	Yes
+		FAX,--	Yes
+		CODIGO_BARRIO,--	Yes
+		TELEFONO_2,--	Yes
+		MOVIL,--	Yes
+		CORREO_ELECTRONICO,--	Yes
+		SW_AUTORIZA_ENVIO_INF_MOVIL,--	No
+		SW_AUTORIZA_LLAMADAS,--	No
+		ID_ZONA	,--
+		ID_SEDE_ADMINISTRATIVA,--	Yes
+		UBICACION_EMPRESA--	Yes
+	 ) 
+	 VALUES
+	  (
+		  V_MATRICULA,--  	No
+		  5,--	No
+		  2,--	comerciales
+		  P_dircom,--	Yes
+		  P_muncom,--	Yes
+		  decode(P_zonacom,'R',2,'U',1),
+		  P_telcom1,--	Yes
+		  null,--	Yes
+		  null,--	Yes
+		  nucodBarriocom,--	Yes
+		  P_telcom2,--	Yes
+		  P_telcom3,--	Yes
+		  P_emailcom,--	Yes
+		  1,--	No
+		  1,--	No
+		  P_codposcom,--
+		  null,
+		  P_ubicacioncom--	Yes 
+		); 
  END prc_guardarDirecciones;
  
+ 
+ /* *************************************************************
+  Descripcion : Procedimiento guardar texto clob de factultades
+ * **********************************************************/
+ 
+procedure guardarFacultadesMatricula(vproceso number,textoClob clob) as 
+
+P_Secuencia 	 number;
+P_TotalProcesado number;
+P_Cadenafija varchar2(500);
+
+n_totalcadena_aux number;
+textoClobtmp clob;
+
+V_MATRICULA number(15);
+begin
+	
+	select MATRICULA into V_MATRICULA  FROM CD_JSON_CARGUE WHERE ID = vproceso;
+
+
+	--SE DECODIFICA EL TEXTO BASE 64
+	textoClobtmp := decodificaClob(textoClob);
+	
+	select DBMS_LOB.getlength(textoClobtmp) into n_totalcadena_aux  from dual;
+
+    P_Secuencia := 1;
+    P_TotalProcesado :=1;
+
+        while P_TotalProcesado  <=  n_totalcadena_aux loop
+              select Dbms_Lob.Substr(textoClobtmp , 80, P_Totalprocesado )    into P_Cadenafija        from dual;
+			  
+              insert into Textos_Para_Certificar(MATRICULA,CAMARA,CERTIFICA, SECUENCIA_DOCUMENTOS, SECUENCIA,TEXTO) 
+			  values (V_MATRICULA,5,73, 1, P_Secuencia,P_Cadenafija);
+			  
+			  
+              P_Totalprocesado := P_Totalprocesado + 80;
+              P_Secuencia := P_Secuencia  + 1;
+        end loop;
+
+end guardarFacultadesMatricula;
+
+
 END PKG_CD_CAMBIO_DOM;
 /
