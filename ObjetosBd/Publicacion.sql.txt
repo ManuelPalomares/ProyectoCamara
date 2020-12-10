@@ -1,0 +1,18 @@
+/* instalador Sql * /
+
+@DML_TABLAS.sql
+@secuencias.sql
+@TIPO_DIRECCION.sql
+@INDICE_RP_INSCRIPCION.sql
+@V_REPRESENTANTES_LEGALES.sql
+@VI_CD_RMINFOFINANCIERA.sql
+@F_CLASIFICACIONES.sql
+@F_CONSULTADIRECCION.sql
+@F_FACULTADES_TEXTO.sql
+@F_TRAERINFO_FIN_TIPO.sql
+@F_ULTIMA_INSCRIPCION.sql
+## NOTA  antes de compilar la clase de llava se debio haber ejecutado los permisos y subior el jar para que se compile la clase java correctamente. 
+@JAVA_CLASS.sql
+@PKG_CD_JSON.sql
+@PKG_CD_CAMBIO_DOM.sql
+@EXPORT_DATOS_TABLAS_CD

@@ -1,8 +1,13 @@
 CREATE OR REPLACE PACKAGE PKG_CD_JSON AS 
 /*
-    Definicion : generar json 
-    Parametros : jsonid id json tabla CD_MAESTRA_JSON, datos varchar2 para filtrar tabla princiapal.
-*/
+
+/***********************************************************
+ Autor: Manuel Palomares y Graciela Nuñes 
+ Empresa : Vision Ingenieria - 2020
+ Definicion : generar json 
+ Parametros : jsonid id json tabla CD_MAESTRA_JSON, datos varchar2 para filtrar tabla princiapal.
+ 
+****************************************************************************************** */
 
 	type xmldata IS RECORD (
 		xmljson XMLTYPE

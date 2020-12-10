@@ -1,7 +1,7 @@
 CREATE OR REPLACE PACKAGE PKG_CD_CAMBIO_DOM AS 
 /* ******************************************************************************************************************
     Definicion : paquete logica de cambio de domicilio a partir de datos cargados en la tabla cd_tabla_datos_json
-    Autor : Graciela Nunes :D  Vision Ingenieria
+    Autor : Manuel Palomares y Graciela Nuñes   Vision Ingenieria
 	Fecha : 15/11/2020
 *********************************************************************************************************************/
 
