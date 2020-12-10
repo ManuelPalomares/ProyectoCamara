@@ -215,7 +215,7 @@ procedure prc_guardarLibrosComerciales(
 	 
 
 procedure PR_GRABARINSCRITOS(
-	 v_proceso NUMBER,
+ v_proceso NUMBER,
      P_sigla varchar2,
      P_idtipoidentificacion varchar2,
      P_identificacion varchar2,
@@ -250,7 +250,12 @@ procedure PR_GRABARINSCRITOS(
      P_empresafamiliar varchar2,
      P_procesosinnovacion varchar2,
      P_ctrubicacion varchar2,
-     P_ctrafiliacion varchar2 );
+     P_ctrafiliacion varchar2 ,
+	 P_nombre varchar2,
+     P_ape1 varchar2,
+     P_ape2 varchar2,
+     P_nom1 varchar2,
+     P_nom2 varchar2 );
 	 
 
 
@@ -929,7 +934,13 @@ begin
 								fnGetValorCampoTabla(vproceso,idtabla,'empresafamiliar',nuReg),
 								fnGetValorCampoTabla(vproceso,idtabla,'procesosinnovacion',nuReg),
 								fnGetValorCampoTabla(vproceso,idtabla,'ctrubicacion',nuReg),
-								fnGetValorCampoTabla(vproceso,idtabla,'ctrafiliacion',nuReg)
+								fnGetValorCampoTabla(vproceso,idtabla,'ctrafiliacion',nuReg),
+								fnGetValorCampoTabla(vproceso,idtabla,'nombre',nuReg),
+								fnGetValorCampoTabla(vproceso,idtabla,'ape1',nuReg),
+								fnGetValorCampoTabla(vproceso,idtabla,'ape2',nuReg),
+								fnGetValorCampoTabla(vproceso,idtabla,'nom1',nuReg),
+								fnGetValorCampoTabla(vproceso,idtabla,'nom2',nuReg)
+
 					);
 						
 						
@@ -2578,9 +2589,22 @@ procedure PR_GRABARINSCRITOS(
      P_empresafamiliar varchar2,
      P_procesosinnovacion varchar2,
      P_ctrubicacion varchar2,
-     P_ctrafiliacion varchar2 ) as
+     P_ctrafiliacion varchar2 ,
+	 P_nombre varchar2,
+     P_ape1 varchar2,
+     P_ape2 varchar2,
+     P_nom1 varchar2,
+     P_nom2 varchar2
+
+	 ) as
 	 
 	 V_MATRICULA NUMBER(15);
+	 
+	
+	P_Secuencia number;
+    P_TotalProcesado number;
+	P_Cadenafija varchar2(500);
+	n_totalcadena_aux number;
 BEGIN
 
 -- traer numero matricula.
@@ -2670,6 +2694,48 @@ values(
 	   0
 
   );
+  
+  
+  
+    P_Secuencia := 1;
+    P_TotalProcesado :=1;
+	P_Cadenafija :='';
+	
+	select length(''||p_nombre) into n_totalcadena_aux from dual ;
+	
+	while P_TotalProcesado  <=  n_totalcadena_aux loop
+	
+			  select SUBSTR(P_nombre , 75, P_Totalprocesado )    into P_Cadenafija        from dual;
+		  
+			  INSERT INTO NOMBRES_INSCRITOS(
+				MATRICULA,
+				CAMARA,
+				SECUENCIA,
+				NOMBRE,
+				SEGUNDO_NOMBRE,
+				PRIMER_NOMBRE,
+				SEGUNDO_APELLIDO,
+				PRIMER_APELLIDO
+				)
+				VALUES
+				 (
+					V_MATRICULA,
+					5,
+					P_Secuencia, --Si el nombre tiene más de 75 caracteres
+					P_Cadenafija, --Se debe partir, maximo 75 caracteres
+					P_nom2,
+					P_nom1,
+					P_ape2,
+					P_ape1
+				 );
+		
+		  
+		  P_Totalprocesado := P_Totalprocesado + 75;
+		  P_Secuencia := P_Secuencia  + 1;
+	end loop;
+	
+	
+
  END PR_GRABARINSCRITOS;
  
  
