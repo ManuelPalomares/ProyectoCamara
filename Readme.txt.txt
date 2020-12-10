@@ -16,7 +16,7 @@ Empresa : Vision Ingenieria.
 2) La carpeta Objetos BD  se encuentran todos los objetos de base de datos de transformacion de JSON. y lectura JSON. 
 
 
-3) El Archivo Publicacion contiene el orden de instalacion.
+3) El Archivo ObjetosBd/Publicacion.sql contiene el orden de instalacion.
 
 
 
