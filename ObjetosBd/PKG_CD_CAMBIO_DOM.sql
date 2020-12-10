@@ -347,6 +347,41 @@ procedure prc_guardar_propietarios(
      P_telcom3 varchar2,
      P_emailcom varchar2
     );
+	
+	
+	
+	
+procedure prc_guardarCiiuInscrito(
+     v_proceso number,
+     P_SECUENCIA VARCHAR2,
+     P_CIIU VARCHAR2,
+     P_FECHA_INICIO VARCHAR2,
+     P_CIIU_MAYOR_INGRESO VARCHAR2);
+	 
+	 
+	 
+procedure prc_guardarDirecciones(v_proceso NUMBER,
+     P_ctrfuncionamiento varchar2,
+     P_dircom varchar2,
+     P_zonacom varchar2,
+     P_codposcom varchar2,
+     P_ubicacioncom varchar2,
+     P_barriocom varchar2,
+     P_muncom varchar2,
+     P_telcom1 varchar2,
+     P_telcom2 varchar2,
+     P_telcom3 varchar2,
+     P_emailcom varchar2,
+     P_dirnot varchar2,
+     P_zonanot varchar2,
+     P_codposnot varchar2,
+     P_ubicacionnot varchar2,
+     P_barrionot varchar2,
+     P_munnot varchar2,
+     P_telnot1 varchar2,
+     P_telnot2 varchar2,
+     P_telnot3 varchar2,
+     P_emailnot varchar2 );
 	 
 END PKG_CD_CAMBIO_DOM;
 /
@@ -944,6 +979,64 @@ begin
 					);
 						
 						
+						
+						
+
+					prc_guardarCiiuInscrito(vproceso,
+											1 ,
+											fnGetValorCampoTabla(vproceso,idtabla,'ciiu1',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'fechainiciociiu1',nuReg) ,
+											fnGetValorCampoTabla(vproceso,idtabla,'ciiumayoresingresos',nuReg)   
+										   );
+					prc_guardarCiiuInscrito(vproceso,
+											2 ,
+											fnGetValorCampoTabla(vproceso,idtabla,'ciiu2',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'fechainiciociiu2',nuReg) ,
+											fnGetValorCampoTabla(vproceso,idtabla,'ciiumayoresingresos',nuReg)   
+										   );
+										   
+					prc_guardarCiiuInscrito(vproceso,
+											3 ,
+											fnGetValorCampoTabla(vproceso,idtabla,'ciiu3',nuReg),
+											NULL ,
+											fnGetValorCampoTabla(vproceso,idtabla,'ciiumayoresingresos',nuReg)   
+										   );
+										   
+					prc_guardarCiiuInscrito(vproceso,
+											4 ,
+											fnGetValorCampoTabla(vproceso,idtabla,'ciiu3',nuReg),
+											NULL ,
+											fnGetValorCampoTabla(vproceso,idtabla,'ciiumayoresingresos',nuReg)   
+										   );
+
+						
+				
+					
+					prc_guardarDirecciones(
+											vproceso,
+											fnGetValorCampoTabla(vproceso,idtabla,'ctrfuncionamiento',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'dircom',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'zonacom',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'codposcom',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'ubicacioncom',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'barriocom',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'muncom',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'telcom1',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'telcom2',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'telcom3',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'emailcom',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'dirnot',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'zonanot',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'codposnot',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'ubicacionnot',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'barrionot',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'munnot',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'telnot1',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'telnot2',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'telnot3',nuReg),
+											fnGetValorCampoTabla(vproceso,idtabla,'emailnot',nuReg)
+											);
+
 				nuReg := nuReg +1 ;
 			end loop;
 		
@@ -2701,11 +2794,11 @@ values(
     P_TotalProcesado :=1;
 	P_Cadenafija :='';
 	
-	select length(''||p_nombre) into n_totalcadena_aux from dual ;
+	select length(''||P_nombre) into n_totalcadena_aux from dual ;
 	
 	while P_TotalProcesado  <=  n_totalcadena_aux loop
 	
-			  select SUBSTR(P_nombre , 75, P_Totalprocesado )    into P_Cadenafija        from dual;
+			  select SUBSTR(P_nombre , P_TotalProcesado, 75)    into P_Cadenafija        from dual;
 		  
 			  INSERT INTO NOMBRES_INSCRITOS(
 				MATRICULA,
@@ -3089,6 +3182,158 @@ emailcom
 */
  END prc_guardar_propietarios; 
  
+
+
+procedure prc_guardarCiiuInscrito(
+     v_proceso number,
+     P_SECUENCIA VARCHAR2,
+     P_CIIU VARCHAR2,
+     P_FECHA_INICIO VARCHAR2,
+     P_CIIU_MAYOR_INGRESO VARCHAR2) as 
+	 
+	 
+	 V_MATRICULA number;
+BEGIN 
+	 select MATRICULA into V_MATRICULA  FROM CD_JSON_CARGUE WHERE ID = v_proceso;
+
+    insert into CIIUS_INSCRITOS(
+      MATRICULA,
+      CAMARA,
+      SECUENCIA,
+      CIIU,
+      FECHA_INICIO_ACTIVIDAD,
+      SW_MAYOR_INGRESO
+    ) 
+    values
+    (
+         V_MATRICULA,
+         5,
+         P_SECUENCIA ,
+         P_CIIU,
+         TO_DATE(P_FECHA_INICIO,'YYYYMMDD'),
+         DECODE(P_CIIU_MAYOR_INGRESO,P_CIIU,0)  ---Si el ciiu que viene como ciiu de ingreso mayor, se marca como 1
+    ); 
+ END prc_guardarCiiuInscrito; 
+
+ 
+ 
+ procedure prc_guardarDirecciones(v_proceso NUMBER,
+     P_ctrfuncionamiento varchar2,
+     P_dircom varchar2,
+     P_zonacom varchar2,
+     P_codposcom varchar2,
+     P_ubicacioncom varchar2,
+     P_barriocom varchar2,
+     P_muncom varchar2,
+     P_telcom1 varchar2,
+     P_telcom2 varchar2,
+     P_telcom3 varchar2,
+     P_emailcom varchar2,
+     P_dirnot varchar2,
+     P_zonanot varchar2,
+     P_codposnot varchar2,
+     P_ubicacionnot varchar2,
+     P_barrionot varchar2,
+     P_munnot varchar2,
+     P_telnot1 varchar2,
+     P_telnot2 varchar2,
+     P_telnot3 varchar2,
+     P_emailnot varchar2 ) as 
+	 
+	 V_MATRICULA NUMBER(15);
+BEGIN 
+	 select MATRICULA into V_MATRICULA  FROM CD_JSON_CARGUE WHERE ID = v_proceso;
+
+
+
+INSERT INTO DIRECCIONES_INSCRITOS
+(
+    MATRICULA,--  	No
+    CAMARA,--	No
+    TIPO_DIRECCION,--	No
+    DIRECCION,--	Yes
+    CIUDAD,--	Yes
+    ZONA_POSTAL,--	Yes
+    TELEFONOS,--	Yes
+    APARTADO,--	Yes
+    FAX,--	Yes
+    CODIGO_BARRIO,--	Yes
+    TELEFONO_2,--	Yes
+    MOVIL,--	Yes
+    CORREO_ELECTRONICO,--	Yes
+    SW_AUTORIZA_ENVIO_INF_MOVIL,--	No
+    SW_AUTORIZA_LLAMADAS,--	No
+    ID_ZONA,
+    ID_SEDE_ADMINISTRATIVA,--	Yes
+    UBICACION_EMPRESA
+ ) 
+ VALUES
+  (
+      V_MATRICULA,--  	No
+      5,--	No
+      1,--	judicial
+      P_dirnot,--	Yes
+      P_munnot,--	Yes
+      P_zonanot,--	Yes
+      P_telnot1,--	Yes
+      null,--	Yes
+      null,--	Yes
+      P_barrionot,--	Yes
+      P_telnot2,--	Yes
+      P_telnot3,--	Yes
+      P_emailnot,--	Yes
+      1,--	No
+      1,--	No
+      P_codposnot	,--
+	  null,
+      P_ubicacionnot--	Yes 
+    ); 
+	
+	
+	
+	INSERT INTO DIRECCIONES_INSCRITOS
+(
+    MATRICULA,--  	No
+    CAMARA,--	No
+    TIPO_DIRECCION,--	No
+    DIRECCION,--	Yes
+    CIUDAD,--	Yes
+    ZONA_POSTAL,--	Yes
+    TELEFONOS,--	Yes
+    APARTADO,--	Yes
+    FAX,--	Yes
+    CODIGO_BARRIO,--	Yes
+    TELEFONO_2,--	Yes
+    MOVIL,--	Yes
+    CORREO_ELECTRONICO,--	Yes
+    SW_AUTORIZA_ENVIO_INF_MOVIL,--	No
+    SW_AUTORIZA_LLAMADAS,--	No
+    ID_ZONA	,--
+    ID_SEDE_ADMINISTRATIVA,--	Yes
+    UBICACION_EMPRESA--	Yes
+ ) 
+ VALUES
+  (
+      V_MATRICULA,--  	No
+      5,--	No
+      2,--	comerciales
+      P_dircom,--	Yes
+      P_muncom,--	Yes
+      P_zonacom,--	Yes
+      P_telcom1,--	Yes
+      null,--	Yes
+      null,--	Yes
+      P_barriocom,--	Yes
+      P_telcom2,--	Yes
+      P_telcom3,--	Yes
+      P_emailcom,--	Yes
+      1,--	No
+      1,--	No
+      P_codposcom,--
+	  null,
+      P_ubicacioncom--	Yes 
+    ); 
+ END prc_guardarDirecciones;
  
 END PKG_CD_CAMBIO_DOM;
 /
