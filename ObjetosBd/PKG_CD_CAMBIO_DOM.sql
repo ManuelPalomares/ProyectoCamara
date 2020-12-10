@@ -252,7 +252,96 @@ procedure PR_GRABARINSCRITOS(
      P_ctrubicacion varchar2,
      P_ctrafiliacion varchar2 );
 	 
+
+
+ procedure prc_guardar_inscrip_kardex(
+     v_proceso number,
+     P_kardex varchar2,
+     P_libroregistro varchar2,
+     P_numeroregistro varchar2,
+     P_dupli varchar2,
+     P_fecharegistro varchar2,
+     P_actogenerico varchar2,
+     P_descripcionacto varchar2,
+     P_idtipodoc varchar2,
+     P_fechadoc varchar2,
+     P_txtorigendoc varchar2,
+     P_numdoc varchar2,
+     P_noticia varchar2,
+     P_ctrrevocacion varchar2,
+     P_numeroregistrorevocacion varchar2,
+     P_fecharegistrorevocacion varchar2,
+     P_camaraanterior varchar2,
+     P_librocamaraanterior varchar2,
+     P_numeroregistrocamaraanterior varchar2,
+     P_fecharegistrocamaraanterior varchar2 ); 
 	 
+
+procedure prc_guardar_certificas(
+     v_proceso number,
+     P_codigo varchar2,
+     P_texto clob);
+     
+      
+
+procedure prc_guardar_casas_inscrito(
+     v_proceso number,
+     P_cpcamara varchar2,
+     P_cpmatricula varchar2,
+     P_cpnit varchar2,
+     P_cprazonsocial varchar2,
+     P_cpdircom varchar2,
+     P_cpmuncom varchar2,
+     P_cptelcom1 varchar2,
+     P_cptelcom2 varchar2,
+     P_cptelcom3 varchar2,
+     P_cpemailcom varchar2 );
+	 
+	 
+procedure prc_guardar_capital_inscrito(
+     v_proceso number,
+     P_libroregistro varchar2,
+     P_numeroregistro varchar2,
+     P_fechadatos varchar2,
+     P_anodatos varchar2,
+     P_cuotascapsocial varchar2,
+     P_valorcapsocial varchar2,
+     P_cuotascapaut varchar2,
+     P_valorcapaut varchar2,
+     P_cuotascapsus varchar2,
+     P_valorcapsus varchar2,
+     P_cuotascappag varchar2,
+     P_valorcappag varchar2,
+     P_apolab varchar2,
+     P_apoact varchar2,
+     P_apolabadi varchar2,
+     P_apodin varchar2,
+     P_apotot varchar2,
+     P_patrimonio varchar2,
+     P_porcepartimujeres varchar2 );
+	 
+	 
+	 
+	 
+	 
+procedure prc_guardar_propietarios(
+     v_proceso number,
+     P_camara varchar2,
+     P_matricula varchar2,
+     P_idtipoidentificacion varchar2,
+     P_identificacion varchar2,
+     P_nombre varchar2,
+     P_nom1 varchar2,
+     P_nom2 varchar2,
+     P_ape1 varchar2,
+     P_ape2 varchar2,
+     P_dircom varchar2,
+     P_muncom varchar2,
+     P_telcom1 varchar2,
+     P_telcom2 varchar2,
+     P_telcom3 varchar2,
+     P_emailcom varchar2
+    );
 	 
 END PKG_CD_CAMBIO_DOM;
 /
@@ -941,7 +1030,29 @@ begin
 			--recorro la itreacion de los registros de una tabla 1 a n registros. 
 			for rgdatos1 in 1 .. registrostabla loop
 				
-				NULL;
+				prc_guardar_capital_inscrito(
+					vproceso,
+					fnGetValorCampoTabla(vproceso,idtabla,'libroregistro',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'numeroregistro',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'fechadatos',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'anodatos',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'cuotascapsocial',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'valorcapsocial',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'cuotascapaut',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'valorcapaut',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'cuotascapsus',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'valorcapsus',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'cuotascappag',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'valorcappag',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'apolab',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'apoact',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'apolabadi',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'apodin',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'apotot',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'patrimonio',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'porcpartimujeres',nuReg)
+					);
+
 				nuReg := nuReg +1 ;
 			end loop;
 		
@@ -999,6 +1110,137 @@ begin
 			
 			update secuencias_control set valor  =  nliq	   where codigo = 5;
 			
+			
+	end if;
+	
+	
+	if(vnombreproceso  = 'PRRMKARDEX') Then
+			
+			--procedmiento llena la tablas PRRMKARDEX
+			nuReg := 1;
+
+			
+			--recorro la itreacion de los registros de una tabla 1 a n registros. 
+			for rgdatos1 in 1 .. registrostabla loop
+				
+			--TODO se deja comentariado por definiciones.
+			/*prc_guardar_inscrip_kardex(
+										 v_proceso, 
+										 fnGetValorCampoTabla(vproceso,idtabla,'  kardex',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  libroregistro',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  numeroregistro',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  dupli',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  fecharegistro',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  actogenerico',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  descripcionacto',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  idtipodoc',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  fechadoc',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  txtorigendoc',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  numdoc',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  noticia',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  ctrrevocacion',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  numeroregistrorevocacion',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  fecharegistrorevocacion',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  camaraanterior',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  librocamaraanterior',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  numeroregistrocamaraanterior',nuReg),
+										 fnGetValorCampoTabla(vproceso,idtabla,'  fecharegistrocamaraanterior',nuReg
+										 );
+										 
+				*/
+				nuReg := nuReg +1 ;
+			end loop;
+			
+			
+			
+			
+			
+			
+	end if;
+	
+	
+	if(vnombreproceso  = 'PRRMTEXTOCERTIFICA') Then
+			
+			--procedmiento llena la tablas PRRMTEXTOCERTIFICA
+			nuReg := 1;
+
+			
+			--recorro la itreacion de los registros de una tabla 1 a n registros. 
+			for rgdatos1 in 1 .. registrostabla loop
+
+				prc_guardar_certificas(
+				vproceso,
+				fnGetValorCampoTabla(vproceso,idtabla,'codigo',nuReg),
+				fnGetValorCampoTablaClob(vproceso,idtabla,'texto',nuReg)
+				);
+				nuReg := nuReg +1 ;
+			end loop;
+
+			
+	end if;
+	
+	
+	
+	if(vnombreproceso  = 'PRRMCASAPRINCIPAL') Then
+			
+			--procedmiento llena la tablas PRRMCASAPRINCIPAL
+			nuReg := 1;
+
+			
+			--recorro la itreacion de los registros de una tabla 1 a n registros. 
+			for rgdatos1 in 1 .. registrostabla loop
+
+				prc_guardar_casas_inscrito(
+				  vproceso,
+				  fnGetValorCampoTabla(vproceso,idtabla,'cpcamara',nuReg),
+				  fnGetValorCampoTabla(vproceso,idtabla,'cpmatricula',nuReg),
+				  fnGetValorCampoTabla(vproceso,idtabla,'cpnit',nuReg),
+				  fnGetValorCampoTabla(vproceso,idtabla,'cprazonsocial',nuReg),
+				  fnGetValorCampoTabla(vproceso,idtabla,'cpdircom',nuReg),
+				  fnGetValorCampoTabla(vproceso,idtabla,'cpmuncom',nuReg),
+				  fnGetValorCampoTabla(vproceso,idtabla,'cptelcom1',nuReg),
+				  fnGetValorCampoTabla(vproceso,idtabla,'cptelcom2',nuReg),
+				  fnGetValorCampoTabla(vproceso,idtabla,'cptelcom3',nuReg),
+				  fnGetValorCampoTabla(vproceso,idtabla,'cpemailcom',nuReg)
+				);
+				nuReg := nuReg +1 ;
+			end loop;
+
+			
+	end if;
+	
+	
+	
+	if(vnombreproceso  = 'PRRMPROPIETARIOS') Then
+			
+			--procedmiento llena la tablas PRRMPROPIETARIOS
+			nuReg := 1;
+
+			
+			--recorro la itreacion de los registros de una tabla 1 a n registros. 
+			for rgdatos1 in 1 .. registrostabla loop
+
+				prc_guardar_propietarios(
+					vproceso,
+					fnGetValorCampoTabla(vproceso,idtabla,'camara',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'matricula',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'idtipoidentificacion',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'identificacion',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'nombre',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'nom1',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'nom2',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'ape1',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'ape2',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'dircom',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'muncom',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'telcom1',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'telcom2',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'telcom3',nuReg),
+					fnGetValorCampoTabla(vproceso,idtabla,'emailcom',nuReg)
+				);
+				nuReg := nuReg +1 ;
+			end loop;
+
 			
 	end if;
 	
@@ -2429,6 +2671,358 @@ values(
 
   );
  END PR_GRABARINSCRITOS;
+ 
+ 
+ procedure prc_guardar_inscrip_kardex(
+     v_proceso number,
+     P_kardex varchar2,
+     P_libroregistro varchar2,
+     P_numeroregistro varchar2,
+     P_dupli varchar2,
+     P_fecharegistro varchar2,
+     P_actogenerico varchar2,
+     P_descripcionacto varchar2,
+     P_idtipodoc varchar2,
+     P_fechadoc varchar2,
+     P_txtorigendoc varchar2,
+     P_numdoc varchar2,
+     P_noticia varchar2,
+     P_ctrrevocacion varchar2,
+     P_numeroregistrorevocacion varchar2,
+     P_fecharegistrorevocacion varchar2,
+     P_camaraanterior varchar2,
+     P_librocamaraanterior varchar2,
+     P_numeroregistrocamaraanterior varchar2,
+     P_fecharegistrocamaraanterior varchar2 ) as 
+	 
+	 
+	 V_MATRICULA number(15);
+	 
+  BEGIN 
+	
+-- traer numero matricula.
+  --select MATRICULA into V_MATRICULA  FROM CD_JSON_CARGUE WHERE ID = v_proceso;
+
+
+
+  null;
+  /*
+  insert into INSCRIPCIONES(
+    kardex,
+    libroregistro,
+    numeroregistro,
+    dupli,
+    fecharegistro,
+    actogenerico,
+    descripcionacto,
+    idtipodoc,
+    fechadoc,
+    txtorigendoc,
+    numdoc,
+    noticia,
+    ctrrevocacion,
+    numeroregistrorevocacion,
+    fecharegistrorevocacion,
+    camaraanterior,
+    librocamaraanterior,
+    numeroregistrocamaraanterior,
+    fecharegistrocamaraanterior
+  ) values(
+         P_kardex,
+         P_libroregistro,
+         P_numeroregistro,
+         P_dupli,
+         P_fecharegistro,
+         P_actogenerico,
+         P_descripcionacto,
+         P_idtipodoc,
+         P_fechadoc,
+         P_txtorigendoc,
+         P_numdoc,
+         P_noticia,
+         P_ctrrevocacion,
+         P_numeroregistrorevocacion,
+         P_fecharegistrorevocacion,
+         P_camaraanterior,
+         P_librocamaraanterior,
+         P_numeroregistrocamaraanterior,
+         P_fecharegistrocamaraanterior ); */
+   END prc_guardar_inscrip_kardex; 
+ 
+ 
+procedure prc_guardar_certificas(
+     v_proceso number,
+     P_codigo varchar2,
+     P_texto clob) as 
+     
+      V_MATRICULA number(15);
+	  
+	  P_Secuencia 		number;
+	  P_TotalProcesado  number;
+	  n_totalcadena_aux number;
+	  P_Cadenafija varchar2(500);
+	  
+  BEGIN 
+  
+  	-- traer numero matricula.
+	select MATRICULA into V_MATRICULA  FROM CD_JSON_CARGUE WHERE ID = v_proceso;
+
+	
+	
+	select DBMS_LOB.getlength(P_texto) into n_totalcadena_aux  from dual;
+
+    P_Secuencia := 1;
+    P_TotalProcesado :=1;
+
+	while P_TotalProcesado  <=  n_totalcadena_aux loop
+			  select Dbms_Lob.Substr(P_texto , 75, P_Totalprocesado )    into P_Cadenafija        from dual;
+		  
+		      INSERT INTO TEXTOS_PARA_CERTIFICAR(
+			  MATRICULA,
+			  CAMARA,
+			  CERTIFICA,
+			  SECUENCIA_DOCUMENTOS,
+			  SECUENCIA,
+			  TEXTO
+			) VALUES(
+			   V_MATRICULA,
+			   5,
+			   1,--Siempre va 1
+			   P_secuencia, --SECUENCIA DE CADA CERTIFICA, SE REGISTRAN 75 CARACTERES POR LINEA
+			   P_codigo,
+			   P_Cadenafija ); 
+	   
+		  
+		  P_Totalprocesado := P_Totalprocesado + 75;
+		  P_Secuencia := P_Secuencia  + 1;
+	end loop;
+		
+   
+
+ END prc_guardar_certificas; 
+ 
+ 
+ 
+ procedure prc_guardar_casas_inscrito(
+     v_proceso number,
+     P_cpcamara varchar2,
+     P_cpmatricula varchar2,
+     P_cpnit varchar2,
+     P_cprazonsocial varchar2,
+     P_cpdircom varchar2,
+     P_cpmuncom varchar2,
+     P_cptelcom1 varchar2,
+     P_cptelcom2 varchar2,
+     P_cptelcom3 varchar2,
+     P_cpemailcom varchar2 ) as 
+     
+      V_MATRICULA number(15);
+BEGIN 
+null;
+ -- traer numero matricula.
+    --select MATRICULA into V_MATRICULA  FROM CD_JSON_CARGUE WHERE ID = v_proceso;
+
+----Comentado hasta que nos confirmen si se debe o no registrar la casa y qué valores se colocan (iguales a la principal?)
+    /*insert into INSCRITOS(
+    CAMARA,
+    MATRICULA,
+    NRO_IDENTIFICACION,
+    MATRICULA_PPAL,
+    CAMARA_PPAL,
+    TIPO_DOMICILIO
+    ) 
+    values(
+     P_cpcamara,
+     P_cpmatricula,
+     P_cpnit,
+     V_MATRICULA,
+     5,
+     2 ---cuál enviamos 2 o 3
+    );
+    
+    
+    
+INSERT INTO DIRECCIONES_INSCRITOS
+(
+    MATRICULA,
+    CAMARA,
+    TIPO_DIRECCION,
+    DIRECCION,
+    CIUDAD,
+    ZONA_POSTAL,
+    TELEFONOS,
+    APARTADO,
+    FAX,
+    CODIGO_BARRIO,
+    TELEFONO_2,
+    P_cptelcom3,
+    CORREO_ELECTRONICO,
+    SW_AUTORIZA_ENVIO_INF_MOVIL,
+    SW_AUTORIZA_LLAMADAS,
+    ID_ZONA,
+    ID_SEDE_ADMINISTRATIVA,
+    UBICACION_EMPRESA,
+ ) 
+ VALUES
+  (
+      P_cpmatricula,--  	No
+      P_cpcamara,--	No
+      2,--	No
+      P_cpdircom,--	Yes
+      P_cpmuncom,--	Yes
+      NULL,--	Yes
+      P_cptelcom1,--	Yes
+      NULL,--	Yes
+      NULL,--	Yes
+      NULL,--	Yes
+      P_cptelcom2,--	Yes
+      MOVIL,--	Yes
+      P_cpemailcom,--	Yes
+      0,--	No
+      0,--	No
+      NULL,--
+      NULL,--	Yes
+      NULL,--	Yes 
+    ); 
+ END; 
+*/
+ END prc_guardar_casas_inscrito;
+ 
+ 
+ 
+procedure prc_guardar_capital_inscrito(
+     v_proceso number,
+     P_libroregistro varchar2,
+     P_numeroregistro varchar2,
+     P_fechadatos varchar2,
+     P_anodatos varchar2,
+     P_cuotascapsocial varchar2,
+     P_valorcapsocial varchar2,
+     P_cuotascapaut varchar2,
+     P_valorcapaut varchar2,
+     P_cuotascapsus varchar2,
+     P_valorcapsus varchar2,
+     P_cuotascappag varchar2,
+     P_valorcappag varchar2,
+     P_apolab varchar2,
+     P_apoact varchar2,
+     P_apolabadi varchar2,
+     P_apodin varchar2,
+     P_apotot varchar2,
+     P_patrimonio varchar2,
+     P_porcepartimujeres varchar2 ) as 
+BEGIN 
+null;
+
+--COMENTANDO MIENTRAS NOS ESPECIFICAN EN DÓNDE GUARDAR
+/*
+insert into tabla(
+libroregistro,
+numeroregistro,
+fechadatos,
+anodatos,
+cuotascapsocial,
+valorcapsocial,
+cuotascapaut,
+valorcapaut,
+cuotascapsus,
+valorcapsus,
+cuotascappag,
+valorcappag,
+apolab,
+apoact,
+apolabadi,
+apodin,
+apotot,
+patrimonio,
+porcentajeparticipacionmujeres,
+) values(
+       P_libroregistro,
+       P_numeroregistro,
+       P_fechadatos,
+       P_anodatos,
+       P_cuotascapsocial,
+       P_valorcapsocial,
+       P_cuotascapaut,
+       P_valorcapaut,
+       P_cuotascapsus,
+       P_valorcapsus,
+       P_cuotascappag,
+       P_valorcappag,
+       P_apolab,
+       P_apoact,
+       P_apolabadi,
+       P_apodin,
+       P_apotot,
+       P_patrimonio,
+       P_porcentajeparticipacionmujeres 
+  ); 
+*/
+ END prc_guardar_capital_inscrito;  
+ 
+
+
+--------***********+++PROPIETARIOS
+
+procedure prc_guardar_propietarios(
+     v_proceso number,
+     P_camara varchar2,
+     P_matricula varchar2,
+     P_idtipoidentificacion varchar2,
+     P_identificacion varchar2,
+     P_nombre varchar2,
+     P_nom1 varchar2,
+     P_nom2 varchar2,
+     P_ape1 varchar2,
+     P_ape2 varchar2,
+     P_dircom varchar2,
+     P_muncom varchar2,
+     P_telcom1 varchar2,
+     P_telcom2 varchar2,
+     P_telcom3 varchar2,
+     P_emailcom varchar2
+    ) as 
+BEGIN 
+null;
+
+--COMENTANDO MIENTRAS NOS ESPECIFICAN EN DÓNDE GUARDAR
+/*
+insert into tabla(
+camara,
+matricula,
+idtipoidentificacion,
+identificacion,
+nombre,
+nom1,
+nom2,
+ape1,
+ape2,
+dircom,
+muncom,
+telcom1,
+telcom2,
+telcom3,
+emailcom
+) values(
+       P_camara,
+       P_matricula,
+       P_idtipoidentificacion,
+       P_identificacion,
+       P_nombre,
+       P_nom1,
+       P_nom2,
+       P_ape1,
+       P_ape2,
+       P_dircom,
+       P_muncom,
+       P_telcom1,
+       P_telcom2,
+       P_telcom3,
+       P_emailcom
+      );
+*/
+ END prc_guardar_propietarios; 
+ 
  
 END PKG_CD_CAMBIO_DOM;
 /
